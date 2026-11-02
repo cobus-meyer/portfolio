@@ -12,7 +12,7 @@ Personal site and work write-ups. Built for people and for agents: every page is
 ## Build locally
 
 ```bash
-pip install markdown
+pip install -r requirements.txt
 python3 build.py        # writes dist/
 python3 -m http.server -d dist 8000
 ```
@@ -21,7 +21,8 @@ python3 -m http.server -d dist 8000
 
 Connect this repo in Cloudflare → Workers & Pages → Create → Pages → Connect to Git, then set:
 
-- Build command: `pip install markdown && python3 build.py`
+- Framework preset: None
+- Build command: `pip install -r requirements.txt && python3 build.py`
 - Output directory: `dist`
 
-Every push to `main` redeploys.
+Cloudflare reads the Python version from `.python-version`. Every push to `main` redeploys.

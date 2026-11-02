@@ -9,7 +9,7 @@ and llms.txt + llms-full.txt are generated from the pages' front matter.
 A fenced block written as ```flow:<name> stays ASCII art in the markdown and is
 swapped for diagrams/<name>.html in the HTML page.
 
-Run: pip install markdown && python3 build.py
+Run: pip install -r requirements.txt && python3 build.py
 """
 import html
 import json
