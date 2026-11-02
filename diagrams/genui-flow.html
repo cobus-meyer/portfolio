@@ -1,0 +1,19 @@
+<figure class="flow" aria-label="Farm data and an auto-generated component prompt go into the LLM, which writes an OpenUI Lang spec that renders both as an interactive React app and as standalone HTML.">
+<svg viewBox="0 0 680 200" role="img">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+  <g class="box"><rect x="10" y="30" width="150" height="50" rx="8"/><text x="85" y="60">Farm data</text></g>
+  <g class="box"><rect x="10" y="120" width="150" height="62" rx="8"/><text x="85" y="146">Prompt, generated</text><text x="85" y="164">from 32 components</text></g>
+  <g class="box accent"><rect x="200" y="75" width="110" height="50" rx="8"/><text x="255" y="105">LLM</text></g>
+  <g class="box accent"><rect x="370" y="75" width="130" height="50" rx="8"/><text x="435" y="98">OpenUI Lang</text><text x="435" y="114">spec</text></g>
+  <g class="box"><rect x="550" y="30" width="120" height="50" rx="8"/><text x="610" y="52">React app</text><text x="610" y="68" class="sub">interactive</text></g>
+  <g class="box"><rect x="550" y="120" width="120" height="50" rx="8"/><text x="610" y="142">Standalone HTML</text><text x="610" y="158" class="sub">offline</text></g>
+  <g class="edge">
+    <path d="M160 55 C182 55 185 90 198 95" marker-end="url(#a)"/>
+    <path d="M160 151 C182 151 185 112 198 106" marker-end="url(#a)"/>
+    <path d="M310 100 H368" marker-end="url(#a)"/>
+    <path d="M500 95 C525 95 525 58 548 56" marker-end="url(#a)"/>
+    <path d="M500 106 C525 106 525 142 548 144" marker-end="url(#a)"/>
+  </g>
+</svg>
+<figcaption>One spec, two renderers. Changing a component changes the prompt the model receives.</figcaption>
+</figure>
