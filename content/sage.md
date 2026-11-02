@@ -28,8 +28,8 @@ The same spec renders two ways: an interactive React view inside the grower app,
 
 ```flow:genui-flow
 Farm data ──▶ LLM ──▶ OpenUI Lang spec ──┬──▶ React app (interactive)
-     ▲                                    └──▶ standalone HTML (offline)
-     └── prompt auto-generated from the 32 component definitions
+              ▲                          └──▶ standalone HTML (offline)
+              └── prompt auto-generated from the 32 component definitions
 ```
 
 ## Designing components for a model, not a person
