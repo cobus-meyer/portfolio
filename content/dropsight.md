@@ -11,8 +11,9 @@ dates: 2021 – present
 where:
 start: 2021
 end: present
-lat: .50
+lat: .59
 ry: 118
+taper: .78
 note: "spray coverage · image processing"
 tint: "#D7C047"
 glyph: "M10 2c3 4 5 7 5 10a5 5 0 01-10 0c0-3 2-6 5-10z"

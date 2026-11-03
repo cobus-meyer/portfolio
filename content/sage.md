@@ -11,13 +11,14 @@ dates: Aug 2025 – Aug 2026
 where: Cape Town
 start: 2025-08
 end: 2026-08
-lat: .12
-ry: 84
+lat: .09
+ry: 112
 note: "risk intelligence · generative UI"
 tint: "#6FB193"
 glyph: "M2 6c3-2 5 2 8 0s5 2 8 0M2 10c3-2 5 2 8 0s5 2 8 0M2 14c3-2 5 2 8 0s5 2 8 0"
 scene: sage
 article: true
+cue: "What I worked on and learned"
 highlights: What I worked on
 ---
 

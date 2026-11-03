@@ -11,7 +11,7 @@ dates: Apr 2024 – Jan 2026
 where:
 start: 2024-04
 end: 2026-01
-lat: .30
+lat: .42
 ry: 92
 note: "independent cafés · payments"
 tint: "#B5835B"

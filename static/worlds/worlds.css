@@ -138,6 +138,11 @@
 .w-rows .world-name { font-size: clamp(70px, 9.6vw, 148px); font-weight: 700; letter-spacing: -.02em; }
 
 /* ---------- Takealot: repricing passes through the catalogue ---------- */
+.w-plant { font-family: Geist, sans-serif; --py: clamp(24px, 6vh, 56px); }
+.w-plant .copy { margin-top: auto; background: #fff; padding: 16px 20px 18px; border: 1px solid #AAA698; width: fit-content; max-width: min(620px, 100%); }
+.w-plant .world-name { font-size: clamp(54px, 6.6vw, 96px); font-weight: 600; letter-spacing: -.03em; }
+.w-plant .kicker, .w-plant .role { font-family: "JetBrains Mono", monospace; }
+.w-plant .cta { margin-right: 10px; }
 .w-tags { font-family: Anton, sans-serif; --py: clamp(24px, 6vh, 56px); }
 .w-tags .copy { margin-top: auto; background: #fff; padding: 12px 20px 18px; border: 3px solid #0A0A0A; width: fit-content; max-width: min(640px, 100%); }
 .w-tags .world-name { font-size: clamp(70px, 9vw, 140px); font-weight: 400; text-transform: uppercase; line-height: 1; }
