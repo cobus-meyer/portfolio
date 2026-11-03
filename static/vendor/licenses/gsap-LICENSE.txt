@@ -1,0 +1,6 @@
+GSAP 3.15.0
+Copyright 2026, GreenSock. All rights reserved.
+Subject to the terms at https://gsap.com/standard-license
+
+The npm package ships no separate licence file. This is the notice from the
+header of gsap.min.js, which is kept in place. Author: Jack Doyle.

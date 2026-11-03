@@ -3,13 +3,38 @@ title: "Generative UI at SAGE: turning LLM output into live product"
 slug: sage
 summary: An LLM writes farm reports as live, interactive UI (32-component library, OpenUI Lang), plus an in-report AI advisor; covers context-window limits, prompt caching, prompt versioning and what broke.
 date: 2026-11-02
+kind: Experience
+org: SAGE
+short: SAGE
+role: Senior Full-Stack Engineer
+dates: Aug 2025 – Aug 2026
+where: Cape Town
+start: 2025-08
+end: 2026-08
+lat: .12
+ry: 84
+note: "risk intelligence · generative UI"
+tint: "#6FB193"
+glyph: "M2 6c3-2 5 2 8 0s5 2 8 0M2 10c3-2 5 2 8 0s5 2 8 0M2 14c3-2 5 2 8 0s5 2 8 0"
+scene: sage
+article: true
+highlights: What else I built at SAGE
 ---
 
 # Generative UI at SAGE: turning LLM output into live product
 
-*Case study by Cobus Meyer · Senior Full-Stack Engineer at SAGE, Sep 2025 – Sep 2026*
+*Case study by Cobus Meyer · Senior Full-Stack Engineer at SAGE, Aug 2025 – Aug 2026*
 
-**In short:** SAGE turns soil, climate and farm data into reports for growers. I built the system that lets an LLM write those reports as live, interactive UI instead of text, and the in-report advisor that answers questions in the same components. The hard parts were not the model. They were designing components a model can use reliably, and keeping a growing report inside the model's context without losing what made replies work.
+**In short:** SAGE builds field-level risk intelligence for agricultural land, starting with crop insurance. One of its products was reports for growers, built from soil, climate and farm data. I built the system that lets an LLM write those reports as live, interactive UI instead of text, and the in-report advisor that answers questions in the same components. The hard parts were not the model. They were designing components a model can use reliably, and keeping a growing report inside the model's context without losing what made replies work.
+
+## What else I built at SAGE
+
+- **Platform and previews.** Six of the platform's early backend services began with my commits. I later built the step that gives each pull request its own isolated environment, seeded with synthetic data and a small non-PII catalog, and torn down on close. Automated checks flag dangerous database migrations. Colleagues extended the workflow later.
+- **PostHog and triage.** One shared module carried PostHog across nearly all backend services, and its capture helpers catch their own failures, so a telemetry error should not fail a request. The Claude Code routine classified errors and proposed fixes. I ran it by hand rather than on a schedule and directed each fix, and a person reviewed each one before it merged.
+- **File ingestion.** I designed and built a pipeline for a complex regulated file format. An AI agent recognizes the file, then a deterministic parser reads it against record layouts I compiled from the published specification, with separate handling for records the specification does not cover. Files that fail validation are held back with a clear reason. I tested it end to end in an isolated environment.
+- **Offline use.** Farmers can be down to one bar of signal or none. The farmer app's shell boots with no network after one online visit, keeps last-known data readable, and caches maps under a storage budget. Voice notes, text notes and file uploads queue on the device and replay only once the backend confirms it can drop duplicates. I built that backend side too, with idempotency keys.
+- **Lost replies.** I found a bug where a chat stream could die after the server had already saved the answer. I made the client check the saved conversation after a stream failure and recover the answer, so a retry only re-sends if the question never arrived. On the server, each turn now runs in its own task, so a disconnect does not stop generation or saving.
+- **Admin console.** I built the internal console from an empty repo with Claude Code, to replace manual operations work with audited workflows. The first version took under three days. It includes a review step for generated reports, so a person approves each one or sends it back. Colleagues added to it later.
 
 ## The problem
 

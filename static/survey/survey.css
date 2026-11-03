@@ -1,0 +1,209 @@
+/*
+ * The Survey. Map rules are scoped under .map-on or to ids inside #survey, which is hidden without
+ * it. With no JS, /?list and fallback, this file still loads and the résumé looks as style.css
+ * makes it. #resume keeps style.css's header, main, footer and heading rules in the List overlay.
+ */
+.view-toggle { display: block; max-width: var(--measure); margin: 0 auto; padding: 12px 20px; font: 500 .9rem Inter, system-ui, sans-serif; }
+
+/* Progressive enhancement only: the GSAP wipe does the real work. */
+@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }
+
+html.map-on { --paper: #F3EEDF; --ink: #2B2118; --soft: #6D5C49; --line: #2B2118; --route: #CC3A1B; --panel: #FBF7EC; --sel: #CC3A1B; --cta-ink: #FFFFFF; color-scheme: light dark; --sa-t: env(safe-area-inset-top, 0px); --sa-r: env(safe-area-inset-right, 0px); --sa-b: env(safe-area-inset-bottom, 0px); --sa-l: env(safe-area-inset-left, 0px); --title-bottom: 100px; --map-soft: #5C4C3B; }
+@media (prefers-color-scheme: dark) { html.map-on:not([data-theme="light"]) { --paper: #0C181D; --ink: #F0E7D3; --soft: #B5A88F; --line: #C9B894; --route: #FF7350; --panel: #13242B; --sel: #FF8E70; --cta-ink: #13242B; --map-soft: #B5A88F; } }
+html.map-on[data-theme="dark"] { --paper: #0C181D; --ink: #F0E7D3; --soft: #B5A88F; --line: #C9B894; --route: #FF7350; --panel: #13242B; --sel: #FF8E70; --cta-ink: #13242B; --map-soft: #B5A88F; }
+
+html.map-on, .map-on body { height: 100%; height: 100dvh; margin: 0; overflow: hidden; overscroll-behavior: none; background: var(--paper); }
+.map-on body { position: fixed; inset: 0; width: 100%; }
+
+#survey { color: var(--ink); font: 400 15px/1.3 "IBM Plex Sans Condensed", system-ui, sans-serif; }
+#survey a { color: inherit; }
+#survey button { touch-action: manipulation; }
+
+/* While the map shows, or is still loading, a pinch must not zoom the page: pinching the map could not undo it.
+   Each of these keeps the one scroll it needs. List view and detail pages stay zoomable. */
+.map-on:not(.list-open) #map, .map-on:not(.list-open) #title, .map-on:not(.list-open) #controls, .map-on:not(.list-open) .view-toggle { touch-action: none; }
+.map-on:not(.list-open) #log { touch-action: pan-x; }
+.map-on:not(.list-open) #note { touch-action: pan-y; }
+.map-on:not(.map-ready) #years { opacity: 0; }
+
+.map-on:not(.map-ready) #survey::after { content: "Drawing the map"; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; color: var(--soft); font: italic 500 16px Spectral, serif; pointer-events: none; }
+
+#map { position: fixed; left: 0; top: 0; width: 100%; height: 100%; height: 100dvh; opacity: 0; }
+.maplibregl-canvas-container.maplibregl-interactive { cursor: grab; }
+.maplibregl-canvas-container.maplibregl-interactive:active { cursor: grabbing; }
+body.over-land .maplibregl-canvas-container.maplibregl-interactive { cursor: pointer; }
+#frame { position: fixed; inset: 8px; border: 2px solid var(--line); pointer-events: none; z-index: 5; }
+#frame::after { content: ""; position: absolute; inset: 3px; border: 1px solid var(--line); opacity: .55; }
+
+.place { display: block; cursor: pointer; background: none; border: 0; padding: 4px 8px; text-align: center; color: var(--ink); font: inherit; white-space: nowrap; border-radius: 3px; }
+.place .nm { display: flex; width: fit-content; margin-inline: auto; gap: 5px; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; text-shadow: 0 0 5px var(--paper), 0 0 5px var(--paper), 0 0 2px var(--paper); }
+.place svg { width: 17px; height: 17px; flex: none; transition: color .15s; }
+.place .nt { display: block; font: italic 500 14px Spectral, serif; text-shadow: 0 0 4px var(--paper), 0 0 4px var(--paper), 0 0 2px var(--paper); }
+.place .yr { display: block; font-size: 11.5px; color: var(--map-soft); text-shadow: 0 0 4px var(--paper), 0 0 3px var(--paper); }
+/* Red text does not hold up on tinted land, so names stay in ink and selection is a red underline and glyph. */
+@media (hover: hover) { .place:hover svg { color: var(--sel); } }
+.place:focus-visible svg, .place.hot svg, .place.sel svg { color: var(--sel); }
+.place.sel .nm { box-shadow: 0 2px 0 var(--sel); }
+.place.sel .yr { color: var(--ink); }
+.place.clash { visibility: hidden; }
+.place:focus-visible { outline: 2px solid var(--sel); outline-offset: 1px; }
+body.far .place .nt, body.far .place .yr { display: none; }
+body.tilted .place:not(.sel) .yr { display: none; }
+
+#years { position: fixed; left: 0; right: 0; top: 8px; height: 26px; z-index: 4; pointer-events: none; overflow: hidden; transition: opacity .25s; }
+#years span { position: absolute; top: 0; left: 0; font-weight: 600; font-size: 12px; color: var(--map-soft); text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper); padding-top: 11px; will-change: transform; }
+#years span::before { content: ""; position: absolute; top: 0; left: 50%; height: 9px; width: 1.5px; background: var(--line); }
+.axis { position: fixed; z-index: 4; right: 22px; writing-mode: vertical-rl; font-weight: 600; font-size: 11.5px; letter-spacing: .05em; color: var(--map-soft); text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper); pointer-events: none; transition: opacity .25s; }
+#axN { top: 44px; }
+#axS { bottom: 90px; }
+body.tilted #years, body.tilted .axis { opacity: 0; }
+
+#title { position: fixed; z-index: 6; left: 22px; top: 22px; width: 318px; background: var(--panel); border: 1px solid var(--line); padding: 13px 15px 12px; }
+#name { margin: 0; font: 600 25px/1.05 Spectral, serif; letter-spacing: .01em; }
+#title .sub { margin: 1px 0 8px; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+#tag { margin: 0; font-size: 14.5px; line-height: 1.38; }
+#links { display: flex; gap: 14px; margin-top: 9px; font-size: 14px; font-weight: 500; }
+#links a { text-underline-offset: 3px; }
+#legend { margin-top: 9px; border-top: 1px solid color-mix(in srgb, var(--line) 35%, transparent); padding-top: 7px; font-size: 13.5px; }
+#legend summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+#legend ul { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 3px; line-height: 1.32; }
+#legend li { margin: 0; }
+
+/* Buttons share the chip style. Desktop: a toolbar in the top right corner. */
+.map-on .view-toggle, #controls button, #about { display: inline-flex; align-items: center; justify-content: center; gap: 5px; margin: 0; font: 500 13.5px/1.2 "IBM Plex Sans Condensed", system-ui, sans-serif; color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 7px 10px; min-height: 38px; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background .12s; touch-action: manipulation; }
+.map-on .view-toggle { position: fixed; z-index: 20; top: 44px; right: 48px; width: 84px; max-width: none; font-weight: 600; }
+#controls { position: fixed; z-index: 6; top: 44px; right: 136px; display: flex; gap: 4px; }
+#controls svg { width: 16px; height: 16px; flex: none; }
+#tilt .state { color: var(--soft); font-variant-numeric: tabular-nums; min-width: 2.1em; text-align: left; }
+#tilt[aria-pressed="true"] { background: var(--sel); border-color: var(--sel); color: var(--cta-ink); }
+#tilt[aria-pressed="true"] .state { color: inherit; }
+@media (hover: hover) {
+  .map-on .view-toggle:hover, #controls button:hover, #about:hover { background: color-mix(in srgb, var(--sel) 14%, var(--panel)); }
+  #tilt[aria-pressed="true"]:hover { background: var(--sel); }
+  #log button:hover { background: color-mix(in srgb, var(--sel) 14%, var(--panel)); }
+  #log button.sel:hover { background: var(--sel); }
+  #note a.cta:hover { filter: brightness(1.08); }
+  #close:hover { background: color-mix(in srgb, var(--line) 12%, transparent); }
+  .map-on.list-open .view-toggle:hover { background: var(--accent-bg); }
+}
+.map-on .view-toggle:focus-visible, #controls button:focus-visible, #about:focus-visible { outline: 2px solid var(--sel); outline-offset: 1px; }
+
+#about, #hint, #west { display: none; }
+
+#note { position: fixed; z-index: 7; right: 22px; bottom: 74px; width: 372px; max-height: calc(100dvh - 120px); overflow: auto; background: var(--panel); border: 1px solid var(--line); padding: 15px 17px 16px; visibility: hidden; overscroll-behavior: contain; }
+#note .k { margin: 0; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--soft); padding-right: 54px; }
+#note h2 { margin: 3px 0 2px; padding: 0; border: 0; font: 600 28px/1.08 Spectral, serif; letter-spacing: 0; }
+#note .t { margin: 0; font: italic 500 16px/1.3 Spectral, serif; }
+#note .d { margin: 3px 0 9px; font-size: 13.5px; color: var(--soft); }
+#note .x { margin: 0; font-size: 15.5px; line-height: 1.44; }
+#note a.cta { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; min-height: 44px; padding: 8px 14px; font-weight: 600; font-size: 16px; color: var(--cta-ink); background: var(--sel); border: 1px solid var(--sel); text-decoration: none; transition: filter .12s; }
+#note a.cta:focus-visible, #note a.more:focus-visible, #close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+#note a.more { display: inline-block; margin-top: 8px; padding: 4px 0; font-weight: 500; font-size: 14px; text-underline-offset: 3px; }
+#close { position: absolute; top: 9px; right: 9px; font: 500 13px/1.2 "IBM Plex Sans Condensed", system-ui, sans-serif; color: var(--ink); background: none; border: 1px solid color-mix(in srgb, var(--line) 45%, transparent); padding: 3px 8px; cursor: pointer; border-radius: 2px; }
+
+#log { position: fixed; z-index: 6; left: 22px; right: 22px; bottom: 20px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; overscroll-behavior: contain; }
+#log::-webkit-scrollbar { display: none; }
+#log button { flex: 1 0 auto; font: 500 13.5px/1.2 "IBM Plex Sans Condensed", system-ui, sans-serif; color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 7px 9px; min-height: 38px; cursor: pointer; white-space: nowrap; transition: background .12s; }
+#log button span { color: var(--soft); margin-right: 2px; font-variant-numeric: tabular-nums; }
+#log button.sel { background: var(--sel); border-color: var(--sel); color: var(--cta-ink); }
+#log button.sel span { color: inherit; }
+#log button:focus-visible { outline: 2px solid var(--sel); outline-offset: -2px; }
+#log button.sel:focus-visible { outline-color: var(--cta-ink); outline-offset: -4px; }
+#log #full { font-weight: 600; }
+
+#wipe { position: fixed; inset: 0; z-index: 30; pointer-events: none; visibility: hidden; }
+
+/* List view: the résumé over the map, scrolling on its own. */
+.map-on.list-open #resume { position: fixed; inset: 0; z-index: 15; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: var(--bg); color: var(--fg); padding: calc(52px + var(--sa-t)) var(--sa-r) var(--sa-b) var(--sa-l); scroll-padding-top: calc(60px + var(--sa-t)); }
+/* A bar across the top, so text scrolls under it and not under a floating button. */
+.map-on.list-open body::before { content: ""; position: fixed; left: 0; right: 0; top: 0; z-index: 16; height: calc(52px + var(--sa-t)); background: var(--bg); border-bottom: 1px solid var(--rule); }
+.map-on.list-open .view-toggle { top: calc(8px + var(--sa-t)); right: max(12px, var(--sa-r)); color: var(--fg); background: var(--bg); border-color: var(--rule); min-height: 44px; }
+
+/* Phones, portrait. */
+@media (max-width: 760px), (max-height: 500px) {
+  #frame { inset: calc(4px + var(--sa-t)) calc(4px + var(--sa-r)) calc(4px + var(--sa-b)) calc(4px + var(--sa-l)); }
+  #title { left: max(12px, var(--sa-l)); right: max(12px, var(--sa-r)); top: calc(12px + var(--sa-t)); width: auto; padding: 0 11px; display: flex; flex-wrap: wrap; align-items: center; column-gap: 10px; }
+  #name { font-size: 20px; min-height: 44px; display: flex; align-items: center; }
+  #title .sub { display: none; }
+  #tag { flex: 0 0 100%; font-size: 13px; line-height: 1.3; margin-bottom: 2px; }
+  #title .ctl { flex: 0 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; }
+  #links { margin-top: 0; font-size: 13.5px; gap: 2px 14px; }
+  #links a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+  #legend { margin-top: 0; padding-top: 0; border-top: 0; font-size: 12.5px; }
+  #legend summary { display: flex; align-items: center; gap: 5px; min-height: 44px; }
+  #legend summary::before { content: "▸"; transition: transform .15s; }
+  #legend[open] summary::before { transform: rotate(90deg); }
+  #legend .keys { display: none; }
+  #survey:has(#legend[open]) #years { opacity: 0; }
+  #legend ul { margin: 0 0 8px; }
+  /* A 32px box in a 44px target. */
+  body.touched #about { display: inline-flex; position: relative; min-height: 44px; padding: 0 9px; border: 0; background: none; }
+  #about { min-width: 44px; }
+  #about::before { content: ""; position: absolute; inset: 6px 0; border: 1px solid color-mix(in srgb, var(--line) 45%, transparent); }
+  body.touched #title:not(.open) #tag, body.touched #title:not(.open) .ctl { display: none; }
+
+  .map-on .view-toggle { top: calc(12px + var(--sa-t)); right: max(12px, var(--sa-r)); min-height: 46px; width: 80px; }
+  .map-on.list-open .view-toggle { top: calc(4px + var(--sa-t)); }
+
+  #controls { top: calc(var(--title-bottom) + 4px); left: max(12px, var(--sa-l)); right: max(12px, var(--sa-r)); }
+  #controls button { flex: 1 1 0; min-height: 44px; padding: 6px 4px; font-size: 13px; }
+  #tilt .state { min-width: 0; }
+
+  .map-ready #hint { display: block; position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); top: calc(var(--title-bottom) + 78px); width: max-content; max-width: calc(100vw - 48px); margin: 0; padding: 7px 12px; background: var(--panel); border: 1px solid var(--line); font-size: 14px; line-height: 1.3; text-align: center; pointer-events: none; opacity: 1; transition: opacity .45s, visibility .45s; }
+  .hint-off #hint, body.focus #hint { opacity: 0; visibility: hidden; }
+
+  #note { left: max(12px, var(--sa-l)); right: max(12px, var(--sa-r)); bottom: calc(64px + var(--sa-b)); width: auto; padding: 10px 13px 12px; max-height: 46dvh; }
+  #note h2 { font-size: 23px; }
+  #note .t { font-size: 15px; }
+  #note .d { margin: 2px 0 6px; font-size: 13px; }
+  #note .x { font-size: 14px; line-height: 1.38; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+  #note a.cta { margin-top: 9px; }
+  #note a.more { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0; padding: 0; }
+  #note .k { padding-right: 70px; }
+  #close { top: 0; right: 0; min-width: 64px; min-height: 44px; border: 0; }
+
+  #log { left: max(12px, var(--sa-l)); right: max(12px, var(--sa-r)); bottom: calc(12px + var(--sa-b)); }
+  #log button { min-height: 44px; }
+  #log #full { position: sticky; left: 0; z-index: 1; box-shadow: 4px 0 0 var(--paper); }
+
+  /* Land lies west of the opening view on a portrait phone. */
+  .hint-off body.west-on #west { display: block; position: fixed; z-index: 4; left: max(14px, var(--sa-l)); top: calc(var(--title-bottom) + 80px); margin: 0; font-weight: 600; font-size: 12px; letter-spacing: .03em; color: var(--map-soft); text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper); pointer-events: none; }
+
+  /* Hit areas for the résumé's links, with no change to how the text sits. */
+  .view-toggle { padding-block: 14px; }
+  #resume main a[href^="/"], #resume main a[href^="http"], #resume header .links a { display: inline-block; padding: 14px 0; margin: -14px 0; }
+  #resume header .links a { padding-inline: 4px; margin-inline: -4px; }
+
+  .place { white-space: normal; width: 138px; min-height: 44px; padding: 2px 4px; }
+  .place .nm { font-size: 13px; }
+  .place .nt { font-size: 12.5px; line-height: 1.16; }
+  .place .yr { display: none; }
+  body.far .place.sel .nt { display: block; }
+  body.focus .place:not(.sel) .nt { display: none; }
+  body.tight .place.sel .nt { display: none; }
+
+  .axis { right: max(12px, var(--sa-r)); }
+  #axN { top: calc(var(--title-bottom) + 58px); }
+  #axS { bottom: calc(76px + var(--sa-b)); }
+}
+
+/* Phones held sideways: one row across the top, chips along the bottom, the card to the side. */
+@media (max-height: 500px) {
+  #frame { display: none; }
+  #title { top: calc(6px + var(--sa-t)); right: auto; max-width: min(340px, 46vw); max-height: calc(100dvh - 12px - var(--sa-t) - var(--sa-b)); overflow-y: auto; }
+  .map-on:not(.list-open) #title { touch-action: pan-y; }
+  #title #tag, #title .ctl { display: none; }
+  body #about { display: inline-flex; position: relative; min-height: 44px; padding: 0 9px; border: 0; background: none; }
+  #title.open #tag { display: block; }
+  #title.open .ctl { display: flex; }
+  .map-on .view-toggle { top: calc(6px + var(--sa-t)); }
+  #controls { top: calc(6px + var(--sa-t)); left: auto; right: calc(max(12px, var(--sa-r)) + 84px); }
+  #controls button { flex: 0 0 auto; padding: 6px 9px; }
+  .map-ready #hint { top: auto; left: max(14px, var(--sa-l)); transform: none; bottom: calc(58px + var(--sa-b)); }
+  body.far .place:not(.sel) .nm { font-size: 11px; letter-spacing: .04em; }
+  body.far .place:not(.sel) svg { display: none; }
+  #note { left: auto; right: max(12px, var(--sa-r)); top: auto; bottom: calc(56px + var(--sa-b)); width: min(320px, 44vw); max-height: calc(100dvh - 112px - var(--sa-t) - var(--sa-b)); }
+  #log { bottom: calc(6px + var(--sa-b)); }
+  #axN { top: calc(56px + var(--sa-t)); }
+  #axS { bottom: calc(60px + var(--sa-b)); }
+}
