@@ -14,9 +14,9 @@ Product engineer and technical founder in Cape Town. I build AI-native products 
 ### SAGE · Senior Full-Stack Engineer
 *Aug 2025 – Aug 2026 · Cape Town*
 
-Field-level risk intelligence for agricultural land, starting with crop insurance, built by a small team. I started the platform in November 2025 and set up its CI/CD and per-PR preview environments as it grew to 20+ services on GCP. I started the generative-UI report system, led the AI advisor and the offline-first farmer app, and built the internal admin console. I added PostHog across the web and backend stack, and built a Claude Code routine, run by hand, that triaged errors and opened fix PRs.
+SAGE reads the risk of agricultural land field by field, starting with crop insurance. I worked across the stack: LLM-driven product UI in React, in-product AI chat, an offline-capable web app for growers, Python backend services on GCP, CI/CD and preview environments, PostHog analytics, and internal tools.
 
-[Read the case study: Generative UI at SAGE →](/sage/)
+[Open SAGE →](/sage/)
 
 ### TOPIC Embedded Systems · Software Engineer
 *Oct 2022 – Mar 2024 · Eindhoven, Netherlands*
@@ -35,7 +35,7 @@ Outsourced CTO work for agritech clients, from scoping to delivery, and new busi
 ### Takealot.com · Software Engineer
 *Jan 2018 – Mar 2020 · Cape Town*
 
-Pricing systems that reprice millions of products, and the system that let third-party sellers ship without going through Takealot's warehouses.
+Pricing systems, and the system that let third-party sellers ship without going through Takealot's warehouses.
 
 [Open Takealot →](/takealot/)
 

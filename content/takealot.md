@@ -1,7 +1,7 @@
 ---
 title: "Takealot.com · Software Engineer"
 slug: takealot
-summary: Software Engineer at Takealot.com, building pricing systems that reprice millions of products and the system that let third-party sellers ship without going through Takealot's warehouses.
+summary: Software Engineer at Takealot.com, building pricing systems and the system that let third-party sellers ship without going through Takealot's warehouses.
 date: 2026-11-02
 kind: Experience
 org: Takealot.com
@@ -23,4 +23,4 @@ scene: tags
 
 *Software Engineer · Jan 2018 – Mar 2020 · Cape Town*
 
-Pricing systems that reprice millions of products, and the system that let third-party sellers ship without going through Takealot's warehouses.
+Pricing systems, and the system that let third-party sellers ship without going through Takealot's warehouses.

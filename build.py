@@ -49,12 +49,12 @@ FONT_UI = "Archivo:wght@400;600;800"
 
 # Illustrations from real HTML. Their words come from the role text or the article.
 SAGE_REPORT = """<div class="report" id="report" aria-hidden="true">
-<div class="chat-head"><i></i>Advisor</div>
-<div class="ask step">which fields need lime first?</div>
-<div class="backend step"><p class="lay">Backend · OpenUI Lang spec</p><pre class="spec"><code class="c1">root = Section(title, kpis, callout)</code><code class="c2">kpis = KPIGrid([ph, organicMatter])</code></pre></div>
+<div class="chat-head"><i></i>AI chat</div>
+<div class="ask step">a question in plain language</div>
+<div class="backend step"><p class="lay">Illustration · model writes a declarative UI</p><pre class="spec"><code class="c1">root = Stack([tiles, note])</code><code class="c2">tiles = Tiles([a, b])</code></pre></div>
 <div class="wire step"></div>
 <div class="reply"><p class="lay step lay-r">Renders as components</p>
-<div class="kpis"><div class="kpi a step">pH<i></i></div><div class="kpi b step">Organic matter<i></i></div></div>
+<div class="kpis"><div class="kpi a step">Value a<i></i></div><div class="kpi b step">Value b<i></i></div></div>
 <div class="callout step"><i style="width:88%"></i><i style="width:64%"></i></div>
 <div class="rank step"><div><i></i><i style="width:80%"></i></div><div><i style="width:80%"></i><i style="width:56%"></i></div><div><i style="width:90%"></i><i style="width:34%"></i></div></div>
 </div>
@@ -519,7 +519,7 @@ def render_place(page: dict, has_cv: bool, data: dict, blob: str) -> str:
     # On the case study the article's own h1 comes first, so the hero's name is not a heading.
     heading = "p" if is_article else "h1"
     cta = f'<a class="cta" href="{attr(p["link"]["href"])}">{esc(p["link"]["label"])}</a>' if p["link"] else ""
-    cue = '<a class="cta scroll-cue" href="#article">Read the case study: generative UI at SAGE ↓</a>' if is_article else ""
+    cue = '<a class="cta scroll-cue" href="#article">What I worked on and learned ↓</a>' if is_article else ""
     contact = f'<div class="contact">{contact_links(has_cv)}<span>{SITE["email"]}</span></div>' if scene.get("contact") else ""
     current = ' class="cur" aria-current="page"'
     dial = "".join(
