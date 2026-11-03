@@ -1,0 +1,367 @@
+/*
+ * Detail pages. Each world has its own type, colour and layout. The copy stays in normal
+ * flow, so a hero grows and the page scrolls rather than clips. Here the /sage/ article only gets its left edge and tap targets.
+ * Without JS: solid world colour and readable copy. Anything hidden before animation sits under .js.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-group(root) { animation-duration: .16s; }
+  html { scroll-behavior: smooth; }
+}
+
+.world-page { --bar: 52px; --safe: env(safe-area-inset-bottom, 0px); padding-bottom: calc(var(--bar) + var(--safe)); }
+.world-page:not(.article) { display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; background: var(--w-bg); color: var(--w-ink); }
+.world-page.article #world { min-height: calc(100vh - var(--bar)); min-height: calc(100svh - var(--bar) - var(--safe)); }
+
+/* ---------- Hero ---------- */
+.world {
+  --px: clamp(20px, 5vw, 72px); --py: clamp(24px, 9vh, 90px);
+  position: relative; flex: 1 0 auto; display: flex; flex-direction: column; overflow-x: clip;
+  padding: var(--py) max(var(--px), env(safe-area-inset-right)) var(--py) max(var(--px), env(safe-area-inset-left));
+  touch-action: pan-y pinch-zoom; font-family: Archivo, system-ui, sans-serif; line-height: 1.5;
+}
+.world canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.world a { color: inherit; }
+.copy { position: relative; z-index: 2; max-width: 520px; }
+.js .copy { transition: opacity .6s ease .1s, transform .6s cubic-bezier(.2,.7,.2,1) .1s; }
+.js .world:not(.on) .copy { opacity: 0; transform: translateY(18px); animation: world-failsafe .3s 3s forwards; }
+@keyframes world-failsafe { to { opacity: 1; transform: none; } }
+
+.world-name { font: inherit; margin: 0; padding: 0; border: 0; line-height: .95; letter-spacing: 0; }
+.kicker { margin: 0 0 12px; font-size: 13px; line-height: 1.35; letter-spacing: .01em; }
+.role { margin: 10px 0 12px; font-size: 19px; line-height: 1.25; font-weight: 600; }
+.text { margin: 0; font-size: 17px; line-height: 1.5; }
+.cta { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; font-weight: 700; text-underline-offset: 3px; }
+.world a.cta { color: var(--accent); }
+
+/* ---------- Move between places ---------- */
+#world-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; gap: 4px;
+  min-height: var(--bar); padding: 4px max(12px, env(safe-area-inset-right)) calc(4px + var(--safe)) max(12px, env(safe-area-inset-left));
+  background: var(--w-bg); color: var(--w-ink); border-top: 1px solid color-mix(in srgb, var(--w-ink) 24%, transparent);
+  font: 600 14px/1.15 Archivo, system-ui, sans-serif;
+}
+#world-nav a { display: inline-flex; align-items: center; justify-content: center; gap: .35em; min-height: 44px; padding: 0 12px; border-radius: 4px; color: inherit; text-decoration: none; text-align: center; transition: background-color .15s, transform .12s; }
+@media (hover: hover) {
+  #world-nav a:hover { background: color-mix(in srgb, var(--w-ink) 14%, transparent); }
+  #world-nav #nav-jump:hover { background: var(--w-ink); transform: translateY(-2px); }
+  .world a.scroll-cue:hover { background: var(--ink); }
+}
+#world-nav .nav-to { margin-left: -.35em; font-weight: 400; }
+#world-nav #nav-jump { margin-left: auto; font-weight: 800; color: var(--w-bg); background: var(--w-ink); }
+#world-nav #nav-jump:active { transform: scale(.97); }
+
+#dial { position: fixed; right: 12px; top: calc(50% - var(--bar) / 2); transform: translateY(-50%); z-index: 20; display: flex; flex-direction: column; padding: 3px; border-radius: 4px; background: var(--w-bg); border: 1px solid color-mix(in srgb, var(--w-ink) 24%, transparent); font: 12px/1.3 Archivo, system-ui, sans-serif; }
+#dial a { display: flex; gap: 8px; justify-content: flex-end; padding: 5px 8px; border-radius: 3px; text-decoration: none; color: var(--w-ink); font-weight: 600; }
+#dial a:hover { text-decoration: underline; text-underline-offset: 2px; }
+#dial a.cur { background: var(--w-ink); color: var(--w-bg); }
+#dial a span { font-variant-numeric: tabular-nums; font-weight: 400; }
+#world-nav a:focus-visible, #dial a:focus-visible, .world a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* ---------- Footer on role pages. The /sage/ footer stays as the article has it. ---------- */
+.world-page:not(.article) footer {
+  flex: none; position: relative; z-index: 3; width: 100%; max-width: none; margin: 0;
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 20px;
+  padding: 8px max(16px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left));
+  background: var(--w-bg); color: var(--w-ink); border-top: 1px solid color-mix(in srgb, var(--w-ink) 24%, transparent);
+  font: 12.5px/1.5 Archivo, system-ui, sans-serif;
+}
+.world-page:not(.article) footer p { margin: 0; }
+.world-page:not(.article) footer .agents { font-size: inherit; }
+.world-page:not(.article) footer a { color: inherit; }
+
+/* ---------- SAGE: the report that writes itself. It is placed by the core sample block at the end. ---------- */
+.world a.scroll-cue { margin-top: 16px; padding: 0 16px; border-radius: 4px; background: var(--accent); color: var(--bg); font: 800 15px Archivo, system-ui, sans-serif; text-decoration: none; }
+.report { background: #F6F2E4; color: #18210F; font: 14px/1.4 Newsreader, serif; }
+.report .spec { margin: 0 0 12px; font: 12.5px/1.6 "JetBrains Mono", ui-monospace, monospace; background: #18210F; color: #CFE3A4; border-radius: 6px; padding: 10px 12px; min-height: 62px; overflow: hidden; }
+.report .spec code { display: block; font: inherit; white-space: pre; background: none; padding: 0; }
+.report.live .spec code { clip-path: inset(0 100% 0 0); }
+.report.live.s1 .c1, .report.live.s2 .c2 { animation: world-type .6s steps(36) forwards; }
+@keyframes world-type { to { clip-path: inset(0 0 0 0); } }
+.report .step { transition: opacity .35s, transform .35s; }
+.report.live .step { opacity: 0; transform: translateY(6px); }
+.report.live.s3 .kpi.a, .report.live.s4 .kpi.b, .report.live.s5 .callout, .report.live.s6 .ask, .report.live.s7 .rank { opacity: 1; transform: none; }
+.report .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.report .kpi { background: #fff; border: 1px solid #DAD4BE; border-radius: 6px; padding: 8px 10px; font-weight: 600; }
+.report .kpi i { display: block; height: 7px; margin-top: 8px; border-radius: 4px; background: linear-gradient(90deg, #6C8F3A 62%, #E4DFC9 62%); }
+.report .kpi.b i { background: linear-gradient(90deg, #A9762F 38%, #E4DFC9 38%); }
+.report .callout { border-left: 3px solid #6C8F3A; background: #ECEBD3; padding: 8px 10px; margin-bottom: 10px; border-radius: 0 6px 6px 0; }
+.report .callout i, .report .rank i { display: block; height: 7px; border-radius: 4px; background: #C7C2A6; margin: 4px 0; }
+.report .ask { background: #18210F; color: #F6F2E4; border-radius: 12px 12px 2px 12px; padding: 7px 11px; width: max-content; max-width: 100%; margin: 0 0 8px auto; }
+.report .rank div { display: grid; grid-template-columns: 1fr 34%; gap: 8px; align-items: center; border-top: 1px solid #DAD4BE; padding: 5px 0; }
+
+/* ---------- BrewPrks: a stamp card you can stamp ---------- */
+.w-brew { font-family: "Bricolage Grotesque", sans-serif; --px: clamp(20px, 6vw, 96px); --py: 24px; }
+.w-brew .copy { margin-block: auto; width: min(44%, 560px); max-width: none; }
+.w-brew .world-name { font-size: clamp(60px, 7.2vw, 112px); font-weight: 800; letter-spacing: -.04em; }
+.w-brew .role, .w-brew .kicker, .w-brew .text { font-family: Archivo, system-ui, sans-serif; }
+.w-brew .text { font-size: 16.5px; }
+
+/* ---------- TOPIC: an instrument reading ---------- */
+.w-topic { font-family: "IBM Plex Mono", ui-monospace, monospace; --py: clamp(24px, 7vh, 60px); }
+.w-topic::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.26) 0 1px, transparent 1px 3px); }
+.w-topic .copy { margin-top: auto; max-width: 560px; background: rgba(3,8,5,.95); padding: 14px 16px 16px; border: 1px solid #1f5a3b; }
+.w-topic .world-name { font-size: clamp(60px, 8.4vw, 130px); font-weight: 600; letter-spacing: -.05em; text-shadow: 0 0 22px rgba(107,255,176,.5); }
+.w-topic .text { font-size: 14.5px; line-height: 1.55; }
+.w-topic .role { font-size: 15px; }
+.layers { position: relative; z-index: 2; margin: 0 0 20px; padding: 0; list-style: none; font-size: 12.5px; display: grid; gap: 4px; justify-items: start; }
+.layers li { margin: 0; border: 1px solid #1f5a3b; background: rgba(3,8,5,.8); padding: 3px 8px; line-height: 1.5; }
+
+/* ---------- DropSight: the page is the spray card ---------- */
+.w-spray { font-family: "Young Serif", serif; --py: clamp(24px, 6vh, 56px); }
+.w-spray .copy { margin-top: auto; background: #FFD400; padding: 18px 20px 20px; border: 3px solid #08245C; width: fit-content; max-width: min(640px, 100%); }
+.w-spray .world-name { font-size: clamp(54px, 6.8vw, 100px); font-weight: 400; letter-spacing: -.02em; }
+.w-spray .role, .w-spray .kicker, .w-spray .text { font-family: Archivo, system-ui, sans-serif; }
+
+/* ---------- Octoco: a drawing that gets finished ---------- */
+.w-print { font-family: "Barlow Condensed", sans-serif; --py: clamp(24px, 8vh, 72px); }
+.w-print .copy { align-self: flex-end; margin-right: clamp(110px, 12vw, 170px); text-align: right; max-width: 460px; background: rgba(18,51,122,.86); padding: 8px 10px; }
+.w-print .world-name { font-size: clamp(66px, 9vw, 140px); font-weight: 700; text-transform: uppercase; letter-spacing: .01em; }
+.w-print .role { font-size: 23px; font-weight: 500; }
+.w-print .text { font-size: 20px; line-height: 1.32; }
+
+/* ---------- ARCi: rows, seen from above, with the rover working them ---------- */
+.w-rows { font-family: "Chakra Petch", sans-serif; }
+.w-rows .copy { background: rgba(9,23,15,.9); padding: 16px 20px 20px; border-left: 4px solid #FFB020; max-width: 500px; }
+.w-rows .world-name { font-size: clamp(70px, 9.6vw, 148px); font-weight: 700; letter-spacing: -.02em; }
+
+/* ---------- Takealot: repricing passes through the catalogue ---------- */
+.w-tags { font-family: Anton, sans-serif; --py: clamp(24px, 6vh, 56px); }
+.w-tags .copy { margin-top: auto; background: #fff; padding: 12px 20px 18px; border: 3px solid #0A0A0A; width: fit-content; max-width: min(640px, 100%); }
+.w-tags .world-name { font-size: clamp(70px, 9vw, 140px); font-weight: 400; text-transform: uppercase; line-height: 1; }
+.w-tags .role, .w-tags .kicker, .w-tags .text { font-family: Archivo, system-ui, sans-serif; }
+
+/* ---------- Stellenbosch: where the traces start ---------- */
+.w-edu { font-family: "Libre Caslon Text", serif; --px: clamp(20px, 7vw, 110px); --py: 24px; }
+.w-edu .copy { margin-block: auto; max-width: min(760px, 100%); background: #5E1020; padding: 18px 24px 22px; }
+.w-edu .world-name { font-size: clamp(50px, 7.2vw, 112px); font-weight: 400; letter-spacing: -.02em; }
+.w-edu .contact { margin-top: 18px; font-family: Archivo, system-ui, sans-serif; font-size: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; font-weight: 600; }
+.w-edu .contact a { display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 3px; }
+
+/* ---------- Narrower windows ---------- */
+@media (max-width: 900px), (max-height: 480px) { #dial { display: none; } }
+@media (pointer: coarse) { #dial a, .strata #dial a { align-items: center; min-height: 44px; } }
+@media (max-width: 900px) {
+  .w-print .copy { margin-right: 0; }
+}
+@media (min-width: 761px) and (max-width: 999px) { .w-print { padding-bottom: 260px; } }
+/* Side by side, the copy stops short of the boxes drawn to its left, and the circles keep room below it. */
+@media (min-width: 1000px) { .w-print { padding-bottom: 110px; } .w-print .copy { max-width: min(460px, 33vw); } }
+
+/* ---------- Phone: the bottom bar, and the copy above or below its scene ---------- */
+@media (max-width: 640px) {
+  .world-page { --bar: 56px; }
+  #world-nav { gap: 2px; padding-left: max(4px, env(safe-area-inset-left)); padding-right: max(4px, env(safe-area-inset-right)); font-size: 13px; }
+  #world-nav a { flex: 1 1 auto; padding: 0 6px; }
+  #world-nav .nav-to { display: none; }
+  #world-nav #nav-jump { margin-left: 2px; }
+  .world-page:not(.article) footer { padding-block: 6px; font-size: 12px; line-height: 1.4; }
+}
+@media (max-width: 760px) {
+  .world { --px: 16px; --py: 16px; }
+  .copy, .w-brew .copy { width: auto; max-width: none; }
+  .kicker { font-size: 12px; margin-bottom: 6px; }
+  .role { font-size: 15.5px; margin: 6px 0; }
+  .text, .w-brew .text { font-size: 14.5px; line-height: 1.42; }
+
+  /* The stamp card is drawn on the canvas, in the room held open under the copy. */
+  .w-brew { padding-bottom: calc(min(88vw, 420px) * .62 + 36px); }
+  .w-brew .copy { margin-block: 0; }
+  .w-brew .world-name { font-size: 56px; }
+
+  .w-topic { padding-top: 150px; }
+  .w-topic .copy { padding: 10px 12px 12px; }
+  .w-topic .world-name { font-size: 58px; }
+  .w-topic .role { font-size: 13.5px; }
+  .w-topic .text { font-size: 13px; line-height: 1.42; }
+  .layers { display: none; }
+
+  .w-spray { padding-top: 96px; }
+  .w-spray .copy { padding: 12px 14px 14px; }
+  .w-spray .world-name { font-size: 56px; }
+
+  .w-print { padding-bottom: 240px; }
+  .w-print .copy { align-self: stretch; text-align: left; }
+  .w-print .world-name { font-size: 70px; }
+  .w-print .role { font-size: 19px; }
+  .w-print .text { font-size: 17px; line-height: 1.28; }
+
+  .w-rows { padding-bottom: 120px; }
+  .w-rows .copy { padding: 10px 14px 14px; }
+  .w-rows .world-name { font-size: 66px; }
+
+  .w-tags { padding-top: 96px; }
+  .w-tags .copy { padding: 8px 14px 12px; }
+  .w-tags .world-name { font-size: 66px; }
+
+  .w-edu { padding-bottom: 72px; }
+  .w-edu .copy { margin-block: 0; padding: 14px 16px 14px; }
+  .w-edu .world-name { font-size: 44px; }
+  .w-edu .contact { margin-top: 8px; font-size: 14px; }
+}
+
+/* ---------- Short phones: the same pages, less scene held open ---------- */
+@media (max-width: 760px) and (max-height: 700px) {
+  .w-topic { padding-top: 84px; }
+  .w-spray, .w-tags { padding-top: 56px; }
+  .w-print { padding-bottom: 130px; }
+  .w-rows { padding-bottom: 72px; }
+  .w-edu { padding-bottom: 32px; }
+}
+/* Landscape phones: less type, so the copy does not take the whole screen. */
+@media (max-height: 480px) {
+  .world { --py: 14px; }
+  .world-name, .w-brew .world-name, .w-topic .world-name, .w-spray .world-name, .w-print .world-name, .w-rows .world-name, .w-tags .world-name, .w-edu .world-name { font-size: 52px; }
+  .role { margin: 6px 0; font-size: 15.5px; }
+  .kicker { margin-bottom: 6px; font-size: 12px; }
+  .text, .w-brew .text, .w-topic .text, .w-print .text { font-size: 14.5px; line-height: 1.42; }
+  .w-topic .layers { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .copy, .js .world:not(.on) .copy { opacity: 1; transform: none; transition: none; animation: none; }
+  .report .step { transition: none; }
+  #world-nav a { transition: none; }
+}
+
+/* ---------- A page with `highlights`: the page is a core sample ----------
+ * One set of columns for the first screen: --gut, the label column --lab, --col, the text column --text, --gap,
+ * the rail, --gut. The masthead, every layer and the place list start on those edges, and the rail and the place
+ * list end on the same right edge. Layer colours come from build.py, by position.
+ * Layers paint under the canvas and their text over it, so the scene only adds grain. Nothing that holds the
+ * layers (.core, .built, ul, li) is positioned, or the canvas would no longer sit between them and their text. */
+body.strata {
+  --t: clamp(15px, min(1.14vw, max(16.4px, 1.52vh)), 22px);
+  --band-measure: calc(var(--t) * 32); /* About 75 characters, and no stranded last lines at this copy's length. Not --measure, which the article's width reads. */
+  --lab: clamp(170px, 16vw, 340px);
+  --col: clamp(18px, 2vw, 40px);
+  --gap: clamp(24px, 3vw, 64px);
+  --rail-min: 250px;
+  --rail-max: calc(var(--t) * 29);
+  --gut: max(clamp(16px, 4.6vw, 96px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px), calc((100vw - var(--lab) - var(--col) - var(--band-measure) - var(--gap) - var(--rail-max)) / 2));
+  --text: min(var(--band-measure), calc(100vw - 2 * var(--gut) - var(--lab) - var(--col) - var(--gap) - var(--rail-min)));
+  --strip: 48px;
+  --name: calc(var(--lab) / 2.67); /* Sets the word SAGE exactly as wide as the label column. */
+  --kick: max(13px, calc(var(--t) * .74));
+  --air-top: clamp(14px, 2.4vh, 28px);
+  --air-bot: clamp(24px, 3.2vh, 40px);
+  --title-h: calc(max(13px, calc(var(--t) * .72)) * 1.2 + 9px);
+  --rail-air: 18px;
+}
+.world-page.strata #world { min-height: 0; }
+.world.w-sage { font-family: Newsreader, serif; }
+.strata .world { display: block; padding: 0; overflow: clip; }
+.strata .world canvas { z-index: 1; pointer-events: none; }
+.strata .core { display: grid; grid-template-columns: var(--gut) var(--lab) var(--col) var(--text) var(--gap) minmax(0, 1fr) var(--gut); grid-template-rows: auto auto 1fr; }
+
+.strata .surface { grid-column: 1 / -1; grid-row: 1; position: relative; z-index: 2; display: flex; align-items: center; min-height: var(--strip); padding: 0 var(--gut); }
+.strata .who { display: inline-flex; align-items: center; min-height: 44px; font: 600 calc(var(--t) * 1.14)/1.2 Newsreader, serif; text-decoration: none; }
+.strata .who:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Masthead. Name and role in the label column, dates and paragraph in the text column. The tops of the capitals
+ * in the name and the dates share a line. */
+.strata .copy { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: var(--lab) var(--text); grid-template-rows: auto auto 1fr; column-gap: var(--col); width: auto; max-width: none; padding: var(--air-top) var(--gut) var(--air-bot); }
+.strata .kicker { grid-column: 2; grid-row: 1; margin: 0 0 1.1em; font: 500 var(--kick)/1.35 Archivo, system-ui, sans-serif; letter-spacing: .01em; color: var(--accent); }
+.strata .world-name { grid-column: 1; grid-row: 1 / 3; align-self: start; font-size: var(--name); font-weight: 600; font-variation-settings: "opsz" 72; line-height: .8; letter-spacing: -.03em; margin: 0 0 0 -.02em; }
+.strata .role { grid-column: 1; grid-row: 3; align-self: start; margin: .95em 0 0; font-size: min(calc(var(--t) * 1.14), calc(var(--lab) / 12.6)); line-height: 1.25; font-weight: 600; }
+.strata .text { grid-column: 2; grid-row: 2 / 4; font-size: var(--t); line-height: 1.5; text-wrap: pretty; }
+
+/* The tops of the capitals, exactly, where the browser can trim a line box to them. */
+@supports (text-box: trim-both cap alphabetic) {
+  .strata .world-name, .strata .kicker { text-box: trim-both cap alphabetic; }
+  /* The drawn capitals of this cut stand a little above the font's stated cap height. */
+  .strata .world-name { margin-top: .085em; }
+}
+@supports not (text-box: trim-both cap alphabetic) {
+  .strata .world-name { margin-top: calc(var(--kick) * .24 + var(--name) * .05); }
+}
+
+/* The layers: a label on one edge, the text on the other, first baselines shared, each as tall as its text. */
+.strata .built { grid-column: 1 / -1; grid-row: 3; display: flex; flex-direction: column; }
+.strata .built-title { display: flex; align-items: flex-start; height: var(--title-h); margin: 0; padding: 0 var(--gut); font: 800 max(13px, calc(var(--t) * .72))/1.2 Archivo, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.strata .built ul { flex: 1; display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.strata .built li { display: grid; grid-template-columns: var(--lab) var(--text); column-gap: var(--col); align-items: baseline; align-content: start; margin: 0; padding: .8em var(--gut) .85em; background: var(--band); font-size: var(--t); line-height: 1.5; box-shadow: inset 0 1px 0 rgba(0, 0, 0, .28); }
+.strata .built li:last-child { flex: 1; }
+.strata .built strong { position: relative; z-index: 2; font-size: 1.26em; line-height: 1.15; font-weight: 600; color: var(--accent); }
+.strata .built span { position: relative; z-index: 2; text-wrap: pretty; }
+
+/* The layers settle from the top down when the page arrives. */
+.js .world:not(.on) .built li, .js .world:not(.on) .rail { opacity: 0; animation: world-failsafe .3s 3s forwards; }
+.strata .world.on .built li { transition: opacity .45s ease; transition-delay: calc(var(--i, 0) * 70ms); }
+.strata .world.on .rail { transition: opacity .5s ease .1s; }
+
+/* The rail: the report and the way into the case study, as one unit from the top of layer 1, as tall as its
+ * content. It stays in view while the layers scroll past and ends flush with the last layer. */
+.strata .rail { grid-column: 6; grid-row: 3; align-self: start; position: sticky; top: var(--rail-air); z-index: 3; container-type: inline-size; display: flex; flex-direction: column; margin: var(--title-h) 0 0; border-radius: 10px; box-shadow: 0 18px 48px rgba(0, 0, 0, .38); }
+.strata .report { display: flex; flex-direction: column; gap: .8em; padding: 1.1em; border-radius: 10px 10px 0 0; font-size: 13px; font-size: clamp(12.5px, min(3.4cqw, 1.7vh), 19px); }
+.strata .report .spec { margin: 0; min-height: 0; padding: .8em .9em; font-size: .88em; font-size: min(.88em, 3.8cqw); }
+.strata .report .kpis { margin: 0; gap: .65em; }
+.strata .report .kpi { display: flex; flex-direction: column; gap: .6em; padding: .7em .85em .85em; }
+.strata .report .kpi i { flex: none; height: .55em; margin: 0; }
+.strata .report .callout { display: flex; flex-direction: column; gap: .1em; margin: 0; padding: .7em .85em; }
+.strata .report .ask { margin: 0 0 0 auto; padding: .55em .85em; }
+.strata .report .rank div { padding: .45em 0; }
+.strata .report .callout i, .strata .report .rank i { height: .5em; }
+.strata a.scroll-cue { flex: none; position: relative; z-index: 2; justify-content: center; min-height: 50px; margin: 0; padding: 0 16px; border-radius: 0 0 10px 10px; font: 800 16px/1.2 Archivo, system-ui, sans-serif; transition: background-color .15s; }
+.strata a.scroll-cue:focus-visible { outline-offset: -4px; }
+
+/* The place list becomes the line along the surface, from the text edge to the right edge. */
+@media (min-width: 1140px) and (min-height: 481px) {
+  .strata #dial { position: absolute; top: 0; right: var(--gut); left: calc(var(--gut) + var(--lab) + var(--col)); transform: none; flex-direction: row; justify-content: space-between; align-items: center; height: var(--strip); padding: 0; border: 0; border-radius: 0; background: none; font: var(--kick)/1.3 Archivo, system-ui, sans-serif; }
+  .strata #dial a { gap: .45em; align-items: baseline; padding: 5px 8px; white-space: nowrap; }
+  .strata #dial a:first-child { margin-left: -8px; }
+  .strata #dial a:not(.cur):hover { background: color-mix(in srgb, var(--w-ink) 14%, transparent); }
+}
+/* Short windows: the report drops what it can, so the way to the case study stays on the first screen. */
+@media (min-width: 1140px) and (min-height: 481px) and (max-height: 786px) { .strata .report .rank { display: none; } }
+@media (min-width: 1140px) and (min-height: 481px) and (max-height: 673px) { .strata .report .ask, .strata .report .callout { display: none; } }
+@media (min-width: 1140px) and (min-height: 481px) and (max-height: 572px) { .strata .report { display: none; } }
+
+/* The article starts on the text edge, wherever its own measure fits beside the label column. */
+@media (min-width: 900px) {
+  body.strata > header, body.strata > main, body.strata > footer { margin-left: calc(var(--gut) + var(--lab) + var(--col) - 20px); margin-right: auto; }
+}
+
+/* No room for a rail beside the text: masthead, the way to the case study, then the layers. The place list and the
+ * report only exist beside the text, and the case study follows the layers directly. */
+@media (min-width: 1140px) and (max-height: 480px) { body.strata { --text: min(var(--band-measure), calc(100vw - 2 * var(--gut) - var(--lab) - var(--col))); } }
+@media (max-width: 1139px) {
+  /* The text runs to the right gutter, and the type grows with it so the measure holds. */
+  body.strata { --gut: max(clamp(16px, 4.6vw, 96px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)); --lab: 30vw; --text: calc(100vw - 2 * var(--gut) - var(--lab) - var(--col)); --t: clamp(15px, calc(var(--text) / 32), 20px); }
+  .strata #dial { display: none; }
+}
+@media (max-width: 1139px), (max-height: 480px) {
+  .strata .core { display: flex; flex-direction: column; }
+  .strata .rail { display: contents; }
+  .strata a.scroll-cue { order: 1; align-self: flex-start; min-height: 48px; margin: 0 0 var(--air-bot) calc(var(--gut) + var(--lab) + var(--col)); padding: 0 18px; border-radius: 6px; }
+  .strata .built { order: 2; }
+  .strata .report { display: none; }
+}
+
+/* Phone: one column, normal scrolling. */
+@media (max-width: 760px) {
+  body.strata { --t: 15.5px; --gut: max(20px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)); --name: min(calc((100vw - 2 * var(--gut)) / 2.67), 34vh); --kick: 13px; --air-top: 16px; --air-bot: 24px; }
+  .strata .surface { min-height: 44px; }
+  .strata .who { font-size: 18px; }
+  .strata .copy { display: block; padding: var(--air-top) var(--gut) var(--air-bot); }
+  .strata .kicker { margin: 0; }
+  .strata .world-name { margin: calc(.085em + 20px) 0 22px -.02em; line-height: .86; }
+  .strata .role { margin: 0 0 12px; font-size: 18px; }
+  .strata .text { max-width: 34.5em; font-size: 16px; }
+  .strata a.scroll-cue { align-self: stretch; margin: 0 var(--gut) 28px; }
+  .strata .built-title { height: auto; padding-bottom: 9px; }
+  .strata .built li { display: block; padding: 14px var(--gut) 16px; }
+  .strata .built strong { display: block; margin-bottom: 4px; font-size: 20px; }
+  .strata .built span { display: block; max-width: 34.5em; }
+}
+
+/* The article's own links are small for a finger, here only: the article's text and its other styles stay as they are. */
+@media (max-width: 760px), (max-height: 480px), (pointer: coarse) {
+  .world-page.article > header nav { padding-block: 6px; }
+  .world-page.article > header a, .world-page.article > footer a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .world:not(.on) .built li, .js .world:not(.on) .rail { opacity: 1; animation: none; }
+  .strata .world.on .built li, .strata .world.on .rail, .strata a.scroll-cue { transition: none; }
+}
