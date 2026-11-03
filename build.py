@@ -15,6 +15,7 @@ against its section in content/index.md, and the build fails on any mismatch.
 Every page carries the same JSON blob of places (<script id="places">).
 
 PORTFOLIO_DIST overrides the output directory (default: dist).
+POSTHOG_PROJECT_TOKEN and POSTHOG_HOST turn on analytics. Without them, no page loads PostHog.
 
 Run: pip install -r requirements.txt && python3 build.py
 """
@@ -32,6 +33,8 @@ import markdown
 ROOT = Path(__file__).parent
 CONTENT, DIAGRAMS, STATIC = (ROOT / d for d in ("content", "diagrams", "static"))
 DIST = Path(os.environ.get("PORTFOLIO_DIST") or ROOT / "dist").resolve()
+POSTHOG_TOKEN = os.environ.get("POSTHOG_PROJECT_TOKEN", "").strip()
+POSTHOG_HOST = os.environ.get("POSTHOG_HOST", "").strip()
 
 SITE = {
     "name": "Cobus Meyer",
@@ -275,6 +278,28 @@ def contact_links(has_cv: bool) -> str:
     return f'{cv}<a href="{SITE["github"]}">GitHub</a><a href="{SITE["linkedin"]}">LinkedIn</a><a href="mailto:{SITE["email"]}">Email</a>'
 
 
+# PostHog's loader snippet, unchanged from https://posthog.com/docs/libraries/js.md
+POSTHOG_LOADER = r'''!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);'''
+
+
+def analytics_html() -> str:
+    """The PostHog snippet for every page, or nothing when the build has no token."""
+    if not POSTHOG_TOKEN:
+        return ""
+    config = {"api_host": POSTHOG_HOST, "defaults": "2026-08-30", "disable_session_recording": True, "disable_surveys": True}
+    links = {"/cv.pdf": "cv", SITE["github"]: "github", SITE["linkedin"]: "linkedin", f'mailto:{SITE["email"]}': "email"}
+    return f"""<script>{POSTHOG_LOADER}
+posthog.init({json.dumps(POSTHOG_TOKEN)}, {json.dumps(config)});
+(function () {{
+  var links = {json.dumps(links)};
+  document.addEventListener('click', function (e) {{
+    var a = e.target.closest && e.target.closest('a[href]');
+    var link = a && links[a.getAttribute('href')];
+    if (link) posthog.capture('contact_clicked', {{ link: link }}, {{ transport: 'sendBeacon', send_instantly: true }});
+  }});
+}})();</script>"""
+
+
 def head_html(page: dict, fonts: str, extra: str = "", html_attrs: str = "") -> str:
     meta, slug = page["meta"], page["meta"]["slug"]
     is_home = slug == "index"
@@ -307,6 +332,7 @@ def head_html(page: dict, fonts: str, extra: str = "", html_attrs: str = "") -> 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family={fonts}&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+{analytics_html()}
 {extra}
 <script type="application/ld+json">{json.dumps(ld)}</script>
 </head>
@@ -609,6 +635,8 @@ def clean_dist():
 
 
 def main():
+    if bool(POSTHOG_TOKEN) != bool(POSTHOG_HOST):
+        sys.exit("Set both POSTHOG_PROJECT_TOKEN and POSTHOG_HOST, or neither.")
     pages = [parse(p) for p in sorted(CONTENT.glob("*.md"))]
     pages.sort(key=lambda p: (p["meta"]["slug"] != "index", p["meta"].get("date", "")), reverse=False)
     try:
