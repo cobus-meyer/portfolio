@@ -1,7 +1,7 @@
 ---
 title: "Site Pulse: directing agents on safety-critical software"
 slug: site-pulse
-summary: An exercise in agentic coding for a friend, in the manufacturing and process industry, that grew into a permit-to-work product; covers how the work was directed and what agents and reviews caught or missed.
+summary: An exercise in agentic coding for a friend, in the manufacturing and process industry, built as a permit-to-work platform to demonstrate capability in a near-production environment; covers how the work was directed and what agents and reviews caught or missed.
 date: 2026-11-03
 kind: Venture
 org: Site Pulse
@@ -30,13 +30,13 @@ cue: "How it was built"
 
 *Cobus Meyer · Technical Lead on Site Pulse, Feb 2026 – Aug 2026*
 
-**In short:** Site Pulse started as an exercise in agentic coding, to solve a business operational problem in the manufacturing and process industry for a friend. Before a contractor works on a machine in a plant, they need an approved permit and the machine locked out. A wrong state here is a safety problem, so the agents' work needed checking.
+**In short:** Site Pulse is an exercise in agentic coding, to solve a business operational problem in the manufacturing and process industry for a friend. It is not a registered company. It exists to demonstrate capability in a near-production environment. Before a contractor works on a machine in a plant, they need an approved permit and the machine locked out. A wrong state here is a safety problem, so the agents' work needed checking.
 
 ## How I worked
 
 - **Rules before code.** My friend knows how permits and lockouts work on a real plant floor. I put questions to them, and their answers became the written business rules the agents worked from.
 - **Standing instructions.** Hard rules live in the repo's agent instructions. One is that every state change must write an audit entry.
-- **Feedback as the backlog.** Rounds of written feedback became releases, so the product was corrected against how a plant runs and not against my guesses.
+- **Feedback as the backlog.** Rounds of written feedback became releases, so the platform was corrected against how a plant runs and not against my guesses.
 
 Another developer also worked on the platform for about two months.
 
@@ -51,5 +51,3 @@ Another developer also worked on the platform for about two months.
 ## Stack
 
 TypeScript, Next.js, React, Fastify, PostgreSQL, Prisma, Redis, BullMQ · Claude Code, Codex · PostHog · Railway
-
-*The code belongs to the company, so this write-up describes the work without sharing it.*
