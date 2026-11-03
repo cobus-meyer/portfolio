@@ -64,11 +64,14 @@ A role is one section in `content/index.md` and one file in `content/`. Together
 | `short` | Name on the island, the chip and the detail page. |
 | `start`, `end` | `YYYY` (placed at January) or `YYYY-MM`. `end` may be `present`. Months sit at mid-month, so a handoff in one month does not count as overlap. |
 | `lat`, `ry` | Island position south to north (0 top, 1 bottom) and its height. |
+| `peak`, `taper` | Optional. `peak` under 1 makes an island lower. `taper` from 0 to 1 narrows and lowers its east end. |
+| `standalone`, `nudge` | Optional. `standalone: true` keeps a place off the red line. `nudge` moves its island east (or west, if negative) in map units, to sit it clear of a neighbour. |
 | `note`, `tint`, `glyph` | Label note, colour on the map, and an SVG path for a 20 by 20 box. |
 | `scene` | A key of `SCENES` in `build.py`. It sets the colours and fonts of the world. |
 | `link_href`, `link_label` | Optional outside link. |
 | `card` | Optional shorter card text. Must be a verbatim part of the paragraph. |
 | `article` | `true` if the body is a full article shown under the hero. The verbatim check then does not apply to the body. |
+| `cue` | Label of the hero button that scrolls to an `article`. |
 | `highlights` | Optional heading of a section of `- **Label.** text` bullets. They appear on the hero as earth bands instead of in the article, one per bullet, and stay in the markdown. Band colours are spaced along the scene's `ramp` in `build.py`, so any number of bullets works. |
 
 The build fails with a clear message if the paragraph, heading or byline differ from `content/index.md`, if the dates differ, if the link line is missing, or if the scene is unknown.

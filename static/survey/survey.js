@@ -194,7 +194,7 @@ async function boot() {
 
   // Opening camera.
   const recentX = places.slice(-6).map(p => p.cx);
-  const RECENT = { west: Math.min(...recentX), east: Math.max(...recentX), edgeW: 50, edgeE: 42 }; // Edges: room for half a label at each side.
+  const RECENT = { west: Math.min(...recentX), east: Math.max(...recentX), edgeW: 50, edgeE: 74 }; // Edges: room for half a label at each side.
   const zoomFor = pxPerUnit => Math.log2(pxPerUnit * 360 / (512 * K));
   // How much taller the title is now than when collapsed. 2: its border.
   const titleExtra = () => $('#title').getBoundingClientRect().height - $('#name').getBoundingClientRect().height - 2;
@@ -566,8 +566,8 @@ async function boot() {
     map.addSource('islands', { type: 'geojson', data: { type: 'FeatureCollection', features: T.hits.map(proj) } });
     map.addLayer({ id: 'hit', type: 'fill', source: 'islands', paint: { 'fill-color': t.hover, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], .14, 0] } }, 'l-sub');
 
-    // Route: places in the order they started.
-    const pts = places.map(p => [p.cx, p.cy]), curve = [];
+    // Route: places in the order they started. A standalone place has a pin but stays off the line.
+    const pts = places.filter(p => !p.standalone).map(p => [p.cx, p.cy]), curve = [];
     for (let i = 0; i < pts.length - 1; i++) { const a = pts[Math.max(0, i - 1)], b = pts[i], c = pts[i + 1], d = pts[Math.min(pts.length - 1, i + 2)];
       for (let k = 0; k < 24; k++) { const u = k / 24, u2 = u * u, u3 = u2 * u; curve.push(ll(.5 * (2 * b[0] + (c[0] - a[0]) * u + (2 * a[0] - 5 * b[0] + 4 * c[0] - d[0]) * u2 + (3 * b[0] - a[0] - 3 * c[0] + d[0]) * u3), .5 * (2 * b[1] + (c[1] - a[1]) * u + (2 * a[1] - 5 * b[1] + 4 * c[1] - d[1]) * u2 + (3 * b[1] - a[1] - 3 * c[1] + d[1]) * u3))); } }
     curve.push(ll(...pts[pts.length - 1]));
@@ -594,7 +594,7 @@ async function boot() {
 
   // Start.
   const worker = new Worker('/survey/terrain-worker.js');
-  worker.postMessage({ W, H, K, ELEV, isles: places.map(({ cx, cy, rx, ry }) => ({ cx, cy, rx, ry })), relief: !FLAT });
+  worker.postMessage({ W, H, K, ELEV, isles: places.map(({ cx, cy, rx, ry, peak, taper }) => ({ cx, cy, rx, ry, peak, taper })), relief: !FLAT });
   const terrain = new Promise((res, rej) => {
     worker.onmessage = e => { res(e.data); worker.terminate(); };
     worker.onerror = e => { rej(new Error('terrain worker: ' + e.message)); worker.terminate(); };

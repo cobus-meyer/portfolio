@@ -11,7 +11,7 @@ dates: Oct 2022 – Mar 2024
 where: Eindhoven, Netherlands
 start: 2022-10
 end: 2024-03
-lat: .90
+lat: .96
 ry: 85
 note: "PCR device · FPGA · STM32 firmware"
 tint: "#8C83C6"

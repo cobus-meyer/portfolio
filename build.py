@@ -79,6 +79,8 @@ SCENES = {
              "families": ["Chakra+Petch:wght@400;600;700"]},
     "tags": {"bg": "#FFFFFF", "ink": "#0A0A0A", "accent": "#E6001F", "font": "Anton, sans-serif", "fw": 400,
              "families": ["Anton"]},
+    "plant": {"bg": "#F6F5EF", "ink": "#171916", "accent": "#2F7D4A", "font": "Geist, sans-serif", "fw": 600,
+              "families": ["Geist:wght@400;600", "JetBrains+Mono:wght@400"]},
     "edu": {"bg": "#5E1020", "ink": "#F8E8D8", "accent": "#F2B84B", "font": '"Libre Caslon Text", serif', "fw": 400,
             "families": ["Libre+Caslon+Text:ital@0;1"], "contact": True},
 }
@@ -240,12 +242,12 @@ def build_places(pages: list, index_body: str, errors: list) -> dict:
     for meta, scene, start, end, lat, ry, text in rows:
         x0, x1, slug = X(start), X(end), meta["slug"]
         places.append({
-            "id": slug, "url": page_url(slug), "md": md_url(slug), "article": meta.get("article") == "true",
+            "id": slug, "url": page_url(slug), "md": md_url(slug), "article": meta.get("article") == "true", "cue": meta.get("cue", "Read the article"),
             "short": meta["short"], "org": meta["org"], "kind": meta["kind"], "role": meta["role"],
             "dates": meta["dates"], "where": meta.get("where", ""), "text": text,
             "link": {"href": meta["link_href"], "label": meta.get("link_label") or meta["link_href"]} if meta.get("link_href") else None,
             "year": int(meta["start"][:4]), "start": round(start, 4), "end": round(end, 4), "ongoing": meta["end"] == "present",
-            "lat": lat, "ry": ry, "cx": round((x0 + x1) / 2, 2), "cy": round(200 + lat * 1300, 2), "rx": round((x1 - x0) / 2 * .98, 2),
+            "lat": lat, "ry": ry, "peak": float(meta.get("peak", 1)), "taper": float(meta.get("taper", 0)), "standalone": meta.get("standalone") == "true", "cx": round((x0 + x1) / 2 + float(meta.get("nudge", 0)), 2), "cy": round(200 + lat * 1300, 2), "rx": round((x1 - x0) / 2 * .98, 2),
             "note": meta["note"], "tint": meta["tint"], "glyph": meta["glyph"],
             "scene": meta["scene"], "bg": scene["bg"], "ink": scene["ink"], "accent": scene["accent"], "font": scene["font"], "fw": scene["fw"],
         })
@@ -519,7 +521,7 @@ def render_place(page: dict, has_cv: bool, data: dict, blob: str) -> str:
     # On the case study the article's own h1 comes first, so the hero's name is not a heading.
     heading = "p" if is_article else "h1"
     cta = f'<a class="cta" href="{attr(p["link"]["href"])}">{esc(p["link"]["label"])}</a>' if p["link"] else ""
-    cue = '<a class="cta scroll-cue" href="#article">What I worked on and learned ↓</a>' if is_article else ""
+    cue = f'<a class="cta scroll-cue" href="#article">{esc(p["cue"])} ↓</a>' if is_article else ""
     contact = f'<div class="contact">{contact_links(has_cv)}<span>{SITE["email"]}</span></div>' if scene.get("contact") else ""
     current = ' class="cur" aria-current="page"'
     dial = "".join(

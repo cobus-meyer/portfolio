@@ -19,12 +19,21 @@ self.onmessage = async ({ data: { W, H, K, ELEV, isles, relief } }) => {
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
     const x = i * G, y = j * G;
     const wx = (fbm(x * .0042 + 11, y * .0042) - .5) * 190, wy = (fbm(x * .0042, y * .0042 + 37) - .5) * 150;
-    let best = 0, bi = 0;
-    for (let k = 0; k < isles.length; k++) { const s = isles[k], dx = (x + wx - s.cx) / s.rx, dy = (y + wy - s.cy) / s.ry, e = Math.exp(-(dx * dx + dy * dy) * 1.2); if (e > best) { best = e; bi = k; } }
+    let best = 0, bi = 0, bt = 0;
+    for (let k = 0; k < isles.length; k++) {
+      const s = isles[k], dx = (x + wx - s.cx) / s.rx;
+      // taper narrows and lowers an island's east end, for something that fades without ending.
+      const t = s.taper ? s.taper * Math.max(0, Math.min(1, (dx + .25) / 1.25)) : 0;
+      const dy = (y + wy - s.cy) / (s.ry * (1 - t)), e = Math.exp(-(dx * dx + dy * dy) * 1.2);
+      if (e > best) { best = e; bi = k; bt = t; }
+    }
     const detail = .84 + .34 * fbm(x * .011 + 5, y * .011 + 9);
     const edge = Math.min(1, Math.min(x, W - x, y, H - y) / 170);
     const floor = (.05 + .16 * fbm(x * .0033 + 3, y * .0033 + 2)) * edge * edge * (3 - 2 * edge);
-    hf[j * nx + i] = Math.max(best * detail, floor); who[j * nx + i] = bi;
+    // peak flattens an island above the waterline without moving its coast.
+    let land = best * detail;
+    if (land > SEA) land = SEA + (land - SEA) * (isles[bi].peak ?? 1) * (1 - bt);
+    hf[j * nx + i] = Math.max(land, floor); who[j * nx + i] = bi;
   }
 
   const lines = [], hits = [];

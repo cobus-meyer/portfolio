@@ -41,6 +41,13 @@ Pricing systems, and the system that let third-party sellers ship without going 
 
 ## Ventures
 
+### Site Pulse · Technical Lead
+*Feb 2026 – Aug 2026*
+
+An exercise in agentic coding, to solve a business operational problem in the manufacturing and process industry for a friend. Contractors need an approved permit and locked-out equipment before they work on a plant's machinery. I built the platform that runs this process, by directing coding agents, and it grew into a product with its own company. [site-pulse.nl](https://www.site-pulse.nl/)
+
+[Open Site Pulse →](/site-pulse/)
+
 ### BrewPrks · Technical Co-founder
 *Apr 2024 – Jan 2026*
 
