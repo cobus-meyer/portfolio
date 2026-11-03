@@ -298,7 +298,9 @@ def head_html(page: dict, fonts: str, extra: str = "", html_attrs: str = "") -> 
 <meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(desc)}">
 <link rel="alternate" type="text/markdown" href="{md_url(slug)}" title="Markdown version">
-<link rel="icon" href="data:,">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family={fonts}&display=swap" rel="stylesheet">
