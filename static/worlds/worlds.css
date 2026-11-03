@@ -73,21 +73,33 @@
 /* ---------- SAGE: the report that writes itself. It is placed by the core sample block at the end. ---------- */
 .world a.scroll-cue { margin-top: 16px; padding: 0 16px; border-radius: 4px; background: var(--accent); color: var(--bg); font: 800 15px Archivo, system-ui, sans-serif; text-decoration: none; }
 .report { background: #F6F2E4; color: #18210F; font: 14px/1.4 Newsreader, serif; }
-.report .spec { margin: 0 0 12px; font: 12.5px/1.6 "JetBrains Mono", ui-monospace, monospace; background: #18210F; color: #CFE3A4; border-radius: 6px; padding: 10px 12px; min-height: 62px; overflow: hidden; }
+.report .chat-head { display: flex; align-items: center; gap: .5em; padding-bottom: .7em; border-bottom: 1px solid #DAD4BE; font: 700 .92em Archivo, system-ui, sans-serif; }
+.report .chat-head i { width: .6em; height: .6em; border-radius: 50%; background: #6C8F3A; }
+.report .ask { align-self: flex-end; background: #18210F; color: #F6F2E4; border-radius: 14px 14px 3px 14px; padding: .55em .9em; width: max-content; max-width: 100%; }
+.report .lay { margin: 0 0 .45em; font: 700 .72em/1.2 Archivo, system-ui, sans-serif; letter-spacing: .07em; text-transform: uppercase; }
+.report .backend { background: #18210F; color: #CFE3A4; border-radius: 8px; padding: .75em .9em .8em; }
+.report .backend .lay { color: #BBD77F; }
+.report .spec { margin: 0; font: .88em/1.65 "JetBrains Mono", ui-monospace, monospace; background: none; color: inherit; padding: 0; overflow: hidden; }
 .report .spec code { display: block; font: inherit; white-space: pre; background: none; padding: 0; }
+/* The spec drives what is under it. */
+.report .wire { width: 2px; height: 1.3em; margin: -.8em 0 -.8em 1.6em; background: repeating-linear-gradient(0deg, #6C8F3A 0 4px, transparent 4px 7px); }
+.report .reply { display: flex; flex-direction: column; gap: .6em; padding: .7em .85em .8em; border: 1.5px solid #6C8F3A; border-radius: 3px 14px 14px 14px; background: #FBF8EE; }
+.report .lay-r { margin: 0; color: #4C6A25; }
 .report.live .spec code { clip-path: inset(0 100% 0 0); }
-.report.live.s1 .c1, .report.live.s2 .c2 { animation: world-type .6s steps(36) forwards; }
+.report.live.s2 .c1, .report.live.s3 .c2 { animation: world-type .6s steps(36) forwards; }
 @keyframes world-type { to { clip-path: inset(0 0 0 0); } }
 .report .step { transition: opacity .35s, transform .35s; }
 .report.live .step { opacity: 0; transform: translateY(6px); }
-.report.live.s3 .kpi.a, .report.live.s4 .kpi.b, .report.live.s5 .callout, .report.live.s6 .ask, .report.live.s7 .rank { opacity: 1; transform: none; }
-.report .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.report .reply { transition: opacity .35s; }
+.report.live .reply { opacity: 0; }
+.report.live.s4 .reply { opacity: 1; }
+.report.live.s1 .ask, .report.live.s2 .backend, .report.live.s4 .wire, .report.live.s4 .lay-r, .report.live.s5 .kpi, .report.live.s6 .callout, .report.live.s7 .rank { opacity: 1; transform: none; }
+.report .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .report .kpi { background: #fff; border: 1px solid #DAD4BE; border-radius: 6px; padding: 8px 10px; font-weight: 600; }
 .report .kpi i { display: block; height: 7px; margin-top: 8px; border-radius: 4px; background: linear-gradient(90deg, #6C8F3A 62%, #E4DFC9 62%); }
 .report .kpi.b i { background: linear-gradient(90deg, #A9762F 38%, #E4DFC9 38%); }
-.report .callout { border-left: 3px solid #6C8F3A; background: #ECEBD3; padding: 8px 10px; margin-bottom: 10px; border-radius: 0 6px 6px 0; }
+.report .callout { border-left: 3px solid #6C8F3A; background: #ECEBD3; padding: 8px 10px; border-radius: 0 6px 6px 0; }
 .report .callout i, .report .rank i { display: block; height: 7px; border-radius: 4px; background: #C7C2A6; margin: 4px 0; }
-.report .ask { background: #18210F; color: #F6F2E4; border-radius: 12px 12px 2px 12px; padding: 7px 11px; width: max-content; max-width: 100%; margin: 0 0 8px auto; }
 .report .rank div { display: grid; grid-template-columns: 1fr 34%; gap: 8px; align-items: center; border-top: 1px solid #DAD4BE; padding: 5px 0; }
 
 /* ---------- BrewPrks: a stamp card you can stamp ---------- */
@@ -220,7 +232,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .js .copy, .js .world:not(.on) .copy { opacity: 1; transform: none; transition: none; animation: none; }
-  .report .step { transition: none; }
+  .report .step, .report .reply { transition: none; }
   #world-nav a { transition: none; }
 }
 
@@ -290,16 +302,15 @@ body.strata {
 .strata .world.on .built li { transition: opacity .45s ease; transition-delay: calc(var(--i, 0) * 70ms); }
 .strata .world.on .rail { transition: opacity .5s ease .1s; }
 
-/* The rail: the report and the way into the case study, as one unit from the top of layer 1, as tall as its
+/* The rail: the chat and the way into the case study, as one unit from the top of the masthead, as tall as its
  * content. It stays in view while the layers scroll past and ends flush with the last layer. */
-.strata .rail { grid-column: 6; grid-row: 3; align-self: start; position: sticky; top: var(--rail-air); z-index: 3; container-type: inline-size; display: flex; flex-direction: column; margin: var(--title-h) 0 0; border-radius: 10px; box-shadow: 0 18px 48px rgba(0, 0, 0, .38); }
+.strata .rail { grid-column: 6; grid-row: 2 / 4; align-self: start; position: sticky; top: var(--rail-air); z-index: 3; container-type: inline-size; display: flex; flex-direction: column; margin: var(--air-top) 0 0; border-radius: 10px; box-shadow: 0 18px 48px rgba(0, 0, 0, .38); }
 .strata .report { display: flex; flex-direction: column; gap: .8em; padding: 1.1em; border-radius: 10px 10px 0 0; font-size: 13px; font-size: clamp(12.5px, min(3.4cqw, 1.7vh), 19px); }
-.strata .report .spec { margin: 0; min-height: 0; padding: .8em .9em; font-size: .88em; font-size: min(.88em, 3.8cqw); }
-.strata .report .kpis { margin: 0; gap: .65em; }
+.strata .report .spec { font-size: .88em; font-size: min(.88em, 3.6cqw); }
+.strata .report .kpis { gap: .65em; }
 .strata .report .kpi { display: flex; flex-direction: column; gap: .6em; padding: .7em .85em .85em; }
 .strata .report .kpi i { flex: none; height: .55em; margin: 0; }
-.strata .report .callout { display: flex; flex-direction: column; gap: .1em; margin: 0; padding: .7em .85em; }
-.strata .report .ask { margin: 0 0 0 auto; padding: .55em .85em; }
+.strata .report .callout { display: flex; flex-direction: column; gap: .1em; padding: .7em .85em; }
 .strata .report .rank div { padding: .45em 0; }
 .strata .report .callout i, .strata .report .rank i { height: .5em; }
 .strata a.scroll-cue { flex: none; position: relative; z-index: 2; justify-content: center; min-height: 50px; margin: 0; padding: 0 16px; border-radius: 0 0 10px 10px; font: 800 16px/1.2 Archivo, system-ui, sans-serif; transition: background-color .15s; }
@@ -314,16 +325,16 @@ body.strata {
 }
 /* Short windows: the report drops what it can, so the way to the case study stays on the first screen. */
 @media (min-width: 1140px) and (min-height: 481px) and (max-height: 786px) { .strata .report .rank { display: none; } }
-@media (min-width: 1140px) and (min-height: 481px) and (max-height: 673px) { .strata .report .ask, .strata .report .callout { display: none; } }
-@media (min-width: 1140px) and (min-height: 481px) and (max-height: 572px) { .strata .report { display: none; } }
+@media (min-width: 1140px) and (min-height: 481px) and (max-height: 673px) { .strata .report .callout { display: none; } }
+@media (min-width: 1140px) and (min-height: 481px) and (max-height: 572px) { .strata .report .reply, .strata .report .wire { display: none; } }
 
 /* The article starts on the text edge, wherever its own measure fits beside the label column. */
 @media (min-width: 900px) {
   body.strata > header, body.strata > main, body.strata > footer { margin-left: calc(var(--gut) + var(--lab) + var(--col) - 20px); margin-right: auto; }
 }
 
-/* No room for a rail beside the text: masthead, the way to the case study, then the layers. The place list and the
- * report only exist beside the text, and the case study follows the layers directly. */
+/* No room for a rail beside the text: masthead, the way to the case study, then the layers. The place list only exists
+ * beside the text, and the chat sits between the layers and the case study. */
 @media (min-width: 1140px) and (max-height: 480px) { body.strata { --text: min(var(--band-measure), calc(100vw - 2 * var(--gut) - var(--lab) - var(--col))); } }
 @media (max-width: 1139px) {
   /* The text runs to the right gutter, and the type grows with it so the measure holds. */
@@ -335,7 +346,7 @@ body.strata {
   .strata .rail { display: contents; }
   .strata a.scroll-cue { order: 1; align-self: flex-start; min-height: 48px; margin: 0 0 var(--air-bot) calc(var(--gut) + var(--lab) + var(--col)); padding: 0 18px; border-radius: 6px; }
   .strata .built { order: 2; }
-  .strata .report { display: none; }
+  .strata .report { order: 3; position: relative; z-index: 2; margin: 24px var(--gut); width: min(calc(100% - 2 * var(--gut)), 520px); padding: 1em; border-radius: 10px; font-size: 14px; }
 }
 
 /* Phone: one column, normal scrolling. */

@@ -5,7 +5,7 @@
 // added .live, so without the script the report stays written.
 import { registerScene, reduce, seeded } from '../world.js';
 
-const STEPS = [.1, .6, 1.1, 1.4, 1.7, 2.2, 2.6];
+const STEPS = [.2, .8, 1.5, 2.2, 2.6, 3, 3.4];
 const CLEAR = 10; // Px of grain-free space kept around text.
 const report = document.getElementById('report');
 const layers = [...document.querySelectorAll('.built li')];
