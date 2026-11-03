@@ -1,0 +1,6 @@
+{
+  // Static site: Cloudflare serves the output of build.py. "name" must match the Worker's name in the dashboard.
+  "name": "portfolio",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./dist" }
+}

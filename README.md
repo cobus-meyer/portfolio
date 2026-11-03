@@ -97,12 +97,12 @@ python3 -m http.server -d dist 8000
 
 Set `PORTFOLIO_DIST` to build somewhere other than `dist/`.
 
-## Deploy (Cloudflare Pages, free)
+## Deploy (Cloudflare Workers, free)
 
-Connect this repo in Cloudflare → Workers & Pages → Create → Pages → Connect to Git, then set:
+Connect this repo in Cloudflare under Workers & Pages, then set:
 
-- Framework preset: None
 - Build command: `pip install -r requirements.txt && python3 build.py`
-- Output directory: `dist`
+- Deploy command: `npx wrangler deploy`
+- Production branch: `main`
 
-Cloudflare reads the Python version from `.python-version`. Every push to `main` redeploys.
+`wrangler.jsonc` tells Wrangler to serve `dist/`. Its `name` must match the Worker's name. Every push to `main` redeploys.
