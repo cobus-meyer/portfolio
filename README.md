@@ -88,7 +88,7 @@ The build fails with a clear message if the paragraph, heading or byline differ 
 
 Each detail page has real HTML copy on a solid world colour, then one canvas scene on top. A world is an entry in `SCENES` in `build.py` (colours, fonts, any extra illustration HTML), a module at `static/worlds/scenes/<scene>.js`, and a `w-<scene>` block in `static/worlds/worlds.css`. `static/worlds/world.js` runs the shared loop and the navigation. A page loads only its own scene module and its own Google Font family.
 
-`static/vendor/` holds the self-hosted libraries with their licences in `static/vendor/licenses/`. Nothing loads from a CDN at runtime except the Google Fonts stylesheet.
+`static/vendor/` holds the self-hosted libraries with their licences in `static/vendor/licenses/`. Nothing loads from a CDN at runtime except the Google Fonts stylesheet and, in builds with analytics on, the PostHog SDK.
 
 ## Build locally
 
@@ -109,3 +109,17 @@ Connect this repo in Cloudflare under Workers & Pages, then set:
 - Production branch: `main`
 
 `wrangler.jsonc` tells Wrangler to serve `dist/`. Its `name` must match the Worker's name. Every push to `main` redeploys.
+
+## Analytics (PostHog)
+
+Set these as build variables in Cloudflare. They are read when the site builds, so a change needs a new deploy.
+
+- `POSTHOG_PROJECT_TOKEN`: the project token (`phc_...`). It is public and ends up in every page.
+- `POSTHOG_HOST`: the ingestion host, for example `https://eu.i.posthog.com`.
+
+The build fails if only one is set. With neither, as in local builds and CI, no page loads PostHog.
+
+Pageviews and autocapture come from the SDK. Session replay is off in the snippet. The site adds two events:
+
+- `place_selected`, with `place`, when a place is selected on the map.
+- `contact_clicked`, with `link` (`cv`, `github`, `linkedin` or `email`), when a contact link is clicked.

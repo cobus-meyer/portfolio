@@ -310,6 +310,7 @@ async function boot() {
     clearTimeout(tapGuard); tapGuard = setTimeout(() => map.doubleClickZoom.enable(), 400);
     tapUntil = performance.now() + 400; resume = null;
     collapseTitle();
+    if (i !== sel) window.posthog?.capture('place_selected', { place: places[i].id });
     sel = i; const p = places[i];
     renderNote(p); prefetch(p); setHash(p.id);
     gsap.killTweensOf(note);
