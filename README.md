@@ -119,7 +119,7 @@ Set these as build variables in Cloudflare. They are read when the site builds, 
 
 The build fails if only one is set. With neither, as in local builds and CI, no page loads PostHog.
 
-Pageviews and autocapture come from the SDK. Session replay is off in the snippet. The site adds two events:
+Pageviews and autocapture come from the SDK. Session replay is off in the snippet. Builds with analytics also show the cookie banner (`static/cookie-banner.js`), and `content/privacy.md` must stay true to what it does. The choice is saved as `cookie_consent` in local storage: PostHog uses memory only until `yes`, and does not load at all after `no`. The site adds two events:
 
 - `place_selected`, with `place`, when a place is selected on the map.
 - `contact_clicked`, with `link` (`cv`, `github`, `linkedin` or `email`), when a contact link is clicked.
