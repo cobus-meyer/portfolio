@@ -11,7 +11,7 @@ dates: Mar 2020 – Dec 2023
 where:
 start: 2020-03
 end: 2023-12
-lat: .76
+lat: .81
 ry: 105
 note: "blueberry rows · robotics"
 tint: "#79AE66"
