@@ -11,8 +11,8 @@ dates: Nov 2020 – Oct 2022
 where: Stellenbosch
 start: 2020-11
 end: 2022-10
-lat: .28
-ry: 90
+lat: .47
+ry: 80
 note: "agritech clients · scoping to delivery"
 tint: "#DD9A52"
 glyph: "M3 3h14v14H3zM3 8h14M8 8v9"

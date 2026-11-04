@@ -11,7 +11,7 @@ dates: 2021 – present
 where:
 start: 2021
 end: present
-lat: .59
+lat: .64
 ry: 118
 taper: .78
 note: "spray coverage · image processing"
