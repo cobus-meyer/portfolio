@@ -283,21 +283,40 @@ POSTHOG_LOADER = r'''!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[
 
 
 def analytics_html() -> str:
-    """The PostHog snippet for every page, or nothing when the build has no token."""
+    """The PostHog snippet and cookie banner for every page, or nothing when the build has no token."""
     if not POSTHOG_TOKEN:
         return ""
     config = {"api_host": POSTHOG_HOST, "defaults": "2026-08-30", "disable_session_recording": True, "disable_surveys": True}
     links = {"/cv.pdf": "cv", SITE["github"]: "github", SITE["linkedin"]: "linkedin", f'mailto:{SITE["email"]}': "email"}
-    return f"""<script>{POSTHOG_LOADER}
-posthog.init({json.dumps(POSTHOG_TOKEN)}, {json.dumps(config)});
-(function () {{
+    return f"""<link rel="stylesheet" href="/cookie-banner.css">
+<script>(function () {{
+  var consent = null;
+  try {{ consent = localStorage.getItem('cookie_consent'); }} catch (e) {{}}
+  window.__clearAnalytics = function () {{
+    document.cookie.split('; ').forEach(function (c) {{
+      var name = c.split('=')[0];
+      if (name.indexOf('ph_') === 0) document.cookie = name + '=; Max-Age=0; path=/';
+    }});
+    [window.localStorage, window.sessionStorage].forEach(function (store) {{
+      try {{ Object.keys(store).forEach(function (k) {{ if (k.indexOf('ph_') === 0) store.removeItem(k); }}); }} catch (e) {{}}
+    }});
+  }};
+  if (consent !== 'yes') window.__clearAnalytics();
+  // An opt-out from an earlier "no". The saved choice decides from here, and it would block a later "yes".
+  try {{ Object.keys(localStorage).forEach(function (k) {{ if (k.indexOf('__ph_opt_in_out') === 0) localStorage.removeItem(k); }}); }} catch (e) {{}}
+  if (consent === 'no') return;
+  {POSTHOG_LOADER}
+  var config = {json.dumps(config)};
+  config.persistence = consent === 'yes' ? 'localStorage+cookie' : 'memory';
+  posthog.init({json.dumps(POSTHOG_TOKEN)}, config);
   var links = {json.dumps(links)};
   document.addEventListener('click', function (e) {{
     var a = e.target.closest && e.target.closest('a[href]');
     var link = a && links[a.getAttribute('href')];
     if (link) posthog.capture('contact_clicked', {{ link: link }}, {{ transport: 'sendBeacon', send_instantly: true }});
   }});
-}})();</script>"""
+}})();</script>
+<script src="/cookie-banner.js" defer></script>"""
 
 
 def head_html(page: dict, fonts: str, extra: str = "", html_attrs: str = "") -> str:
@@ -346,7 +365,7 @@ def header_html(is_home: bool, has_cv: bool) -> str:
 
 def footer_html(slug: str) -> str:
     return f"""<footer>
-<p>{SITE['email']} · Cape Town, South Africa</p>
+<p>{SITE['email']} · Cape Town, South Africa · <a href="/privacy/">Privacy</a></p>
 <p class="agents">For agents: this page as markdown at <a href="{md_url(slug)}">{md_url(slug)}</a>; site index at <a href="/llms.txt">/llms.txt</a>.</p>
 </footer>"""
 
