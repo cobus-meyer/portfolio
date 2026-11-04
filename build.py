@@ -286,7 +286,7 @@ def analytics_html() -> str:
     """The PostHog snippet and cookie banner for every page, or nothing when the build has no token."""
     if not POSTHOG_TOKEN:
         return ""
-    config = {"api_host": POSTHOG_HOST, "defaults": "2026-08-30", "disable_session_recording": True, "disable_surveys": True}
+    config = {"api_host": POSTHOG_HOST, "defaults": "2026-08-30", "disable_session_recording": True, "disable_surveys": True, "cross_subdomain_cookie": False}
     links = {"/cv.pdf": "cv", SITE["github"]: "github", SITE["linkedin"]: "linkedin", f'mailto:{SITE["email"]}': "email"}
     return f"""<link rel="stylesheet" href="/cookie-banner.css">
 <script>(function () {{
@@ -295,7 +295,12 @@ def analytics_html() -> str:
   window.__clearAnalytics = function () {{
     document.cookie.split('; ').forEach(function (c) {{
       var name = c.split('=')[0];
-      if (name.indexOf('ph_') === 0) document.cookie = name + '=; Max-Age=0; path=/';
+      if (name.indexOf('ph_') !== 0) return;
+      // PostHog can set these on a parent domain, and a cookie only goes away on the domain that set it.
+      document.cookie = name + '=; Max-Age=0; path=/';
+      location.hostname.split('.').forEach(function (part, i, parts) {{
+        document.cookie = name + '=; Max-Age=0; path=/; domain=' + parts.slice(i).join('.');
+      }});
     }});
     [window.localStorage, window.sessionStorage].forEach(function (store) {{
       try {{ Object.keys(store).forEach(function (k) {{ if (k.indexOf('ph_') === 0) store.removeItem(k); }}); }} catch (e) {{}}
